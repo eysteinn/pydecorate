@@ -1,6 +1,6 @@
-# pydecorate - python module for labelling 
+# pydecorate - python module for labelling
 # and adding colour scales to images
-# 
+#
 #Copyright (C) 2011  Hrobjartur Thorsteinsson
 #
 #This program is free software: you can redistribute it and/or modify
@@ -21,12 +21,12 @@ import numpy as np
 try:
     from PIL import Image, ImageFont
 except ImportError:
-    print "ImportError: Missing PIL image objects"
+    print("ImportError: Missing PIL image objects")
 
 try:
     import ImageDraw
 except ImportError:
-    print "ImportError: Missing module: ImageDraw"
+    print("ImportError: Missing module: ImageDraw")
 
 # style dictionary defines default options
 # some only used by aggdraw version of the decorator
@@ -39,6 +39,7 @@ default_style_dict = {
 'newline_propagation':[0,1],
 'alignment':[0.0,0.0],
 'bg':'white',
+#'bg':(128,0,0),
 'bg_opacity':127,
 'line':"black",
 'line_width':1,
@@ -63,7 +64,7 @@ class DecoratorBase(object):
         DecoratorBase is a base class outlining common operations and interface for the Decorator (PIL drawing engine) and DecoratorAgg (Aggdraw drawing engine)
         """
         self.image = image
-        
+
         import copy
         self.style = copy.deepcopy(default_style_dict)
 
@@ -81,7 +82,7 @@ class DecoratorBase(object):
         if self.style['alignment'][0] == 1.0 and self.style['alignment'][1] == 0.0:
             self.style['propagation']=[0,1]
             self.style['newline_propagation']=[-1,0]
-        # bottom-right 
+        # bottom-right
         elif self.style['alignment'][0] == 1.0 and self.style['alignment'][1] == 1.0:
             self.style['propagation']=[0,-1]
             self.style['newline_propagation']=[-1,0]
@@ -99,7 +100,7 @@ class DecoratorBase(object):
         if self.style['alignment'][0] == 1.0 and self.style['alignment'][1] == 0.0:
             self.style['propagation']=[-1,0]
             self.style['newline_propagation']=[0,1]
-        # bottom-right 
+        # bottom-right
         elif self.style['alignment'][0] == 1.0 and self.style['alignment'][1] == 1.0:
             self.style['propagation']=[-1,0]
             self.style['newline_propagation']=[0,-1]
@@ -163,7 +164,7 @@ class DecoratorBase(object):
 
     #def start_border(self):
     #    self.style['start_border'] = list( self.style['cursor'] )
-    #    
+    #
     #def end_border(self,**kwargs):
     #    x0=self._start_border[0]
     #    y0=self._start_border[1]
@@ -204,14 +205,14 @@ class DecoratorBase(object):
             y -= th/2.0
         elif align[1] == 'r':
             y -= th
-        
+
         # draw the text
         if not dry_run:
             self._draw_text_line(draw, (x,y), txt, font, fill=fill)
 
         return tw,th
 
-    def _add_text(self, txt, **kwargs): 
+    def _add_text(self, txt, **kwargs):
         # synchronize kwargs into style
         self.set_style(**kwargs)
 
@@ -219,7 +220,7 @@ class DecoratorBase(object):
         draw = self._get_canvas(self.image)
 
         # check for font object
-        if self.style['font'] is None: 
+        if self.style['font'] is None:
             self.style['font'] = self._load_default_font()
 
         # image size
@@ -244,7 +245,7 @@ class DecoratorBase(object):
         hh=len(txt_nl)*th
 
         # set height/width for subsequent draw operations
-        if prev_height < int(hh+2*my): 
+        if prev_height < int(hh+2*my):
             self.style['height'] = int(hh+2*my)
         self.style['width'] = int(tw+2*mx)
 
@@ -254,7 +255,7 @@ class DecoratorBase(object):
         x1 = x + px*(tw + 2*mx)
         y1 = y + py*self.style['height']
         self._draw_rectangle(draw, [x,y,x1,y1], **self.style)
-        
+
         # draw
         for i in range(len(txt_nl)):
             pos_x = x + mx
@@ -273,16 +274,20 @@ class DecoratorBase(object):
 
     def _draw_text_line(self, draw, xy, text, font, fill='black'):
         draw.text(xy,text, font=font, fill=fill)
-        
+
     def _draw_line(self,draw,xys,**kwargs):
         draw.line(xys,fill=kwargs['line']) # inconvenient to use fill for a line so swapped def.
 
     def _draw_rectangle(self,draw,xys,**kwargs):
         # adjust extent of rectangle to draw up to but not including xys[2/3]
+        #print(kwargs)
         xys[2]-=1
         xys[3]-=1
-        if kwargs['bg'] or kwargs['outline']:
-            draw.rectangle(xys, fill=kwargs['bg'], outline=kwargs['outline'])
+        #print(xys)
+        #print(draw.mode)
+        draw.rectangle(xys, fill=kwargs['bg'])
+        #if kwargs['bg'] or kwargs['outline']:
+        #    draw.rectangle(xys, fill=kwargs['bg'], outline=kwargs['outline'])
 
     def _add_logo(self, logo_path, **kwargs):
         # synchronize kwargs into style
@@ -300,16 +305,16 @@ class DecoratorBase(object):
 
         # get logo image
         logo=Image.open(logo_path,"r").convert('RGBA')
-        
+
         # default size is _line_size set by previous draw operation
         # else do not resize
         nx,ny=logo.size
         aspect=float(ny)/nx
-        
+
         # default logo sizes ...
         # use previously set line_size
         if self.style['propagation'][0] != 0:
-            ny = self.style['height'] 
+            ny = self.style['height']
             nyi = int(round(ny-2*my))
             nxi = int(round(nyi/aspect))
             nx = (nxi + 2*mx)
@@ -320,7 +325,7 @@ class DecoratorBase(object):
             ny = (nyi + 2*my)
 
         logo = logo.resize((nxi,nyi),resample=Image.ANTIALIAS)
-        
+
         # draw base
         px = (self.style['propagation'][0] + self.style['newline_propagation'][0])
         py = (self.style['propagation'][1] + self.style['newline_propagation'][1])
@@ -333,7 +338,7 @@ class DecoratorBase(object):
         # paste logo
         box = [x+px*mx, y+py*my, x+px*mx+px*nxi, y+py*my+py*nyi]
         self._insert_RGBA_image(logo,box)
- 
+
         # update cursor
         self.style['width'] = int(nx)
         self.style['height'] = int(ny)
@@ -342,6 +347,7 @@ class DecoratorBase(object):
     def _add_scale(self, colormap, **kwargs):
         # synchronize kwargs into style
         self.set_style(**kwargs)
+
 
         # sizes, current xy and margins
         x=self.style['cursor'][0]
@@ -354,7 +360,7 @@ class DecoratorBase(object):
         is_vertical = False
         if self.style['propagation'][1] != 0:
             is_vertical = True
-        
+
         # left/right?
         is_right = False
         if self.style['alignment'][0] == 1.0:
@@ -387,7 +393,7 @@ class DecoratorBase(object):
 
         # draw object
         draw = self._get_canvas(self.image)
-        
+
         # draw base
         px = (self.style['propagation'][0] + self.style['newline_propagation'][0])
         py = (self.style['propagation'][1] + self.style['newline_propagation'][1])
@@ -398,18 +404,18 @@ class DecoratorBase(object):
         # scale dimensions
         scale_width = self.style['width'] - 2*mx - x_spacer
         scale_height = self.style['height'] - 2*my - y_spacer
-        
+
         # generate color scale image obj inset by margin size mx my,
         from trollimage.image import Image as TImage
-        
+
         #### THIS PART TO BE INGESTED INTO A COLORMAP FUNCTION ####
         minval,maxval = colormap.values[0],colormap.values[-1]
 
         if is_vertical:
-            linedata = np.ones((scale_width,1)) * np.arange(minval,maxval,(maxval-minval)/scale_height)
+            linedata = np.ones((scale_width/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_height)
             linedata = linedata.transpose()
         else:
-            linedata = np.ones((scale_height,1)) * np.arange(minval,maxval,(maxval-minval)/scale_width)
+            linedata = np.ones((scale_height/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_width)
 
         timg = TImage(linedata,mode="L")
         timg.colorize(colormap)
@@ -435,11 +441,11 @@ class DecoratorBase(object):
         last_x = x+px*mx
         last_y = y+py*my
         ref_w, ref_h = self._draw_text(draw, (0,0), form%(val_steps[0]), dry_run=True, **self.style)
-
+        tick_length=10
         if is_vertical:
             # major
             offset_start = val_steps[0]  - minval
-            offset_end   = val_steps[-1] - maxval 
+            offset_end   = val_steps[-1] - maxval
             y_steps = py*(val_steps - minval - offset_start - offset_end)*scale_height/(maxval-minval)+y+py*my
             y_steps = y_steps[::-1]
             for i, ys in enumerate(y_steps):
@@ -455,16 +461,21 @@ class DecoratorBase(object):
         else:
             # major
             x_steps = px*(val_steps - minval)*scale_width/(maxval-minval)+x+px*mx
+            #print(x_steps)
             for i, xs in enumerate(x_steps):
-                self._draw_line(draw,[(xs,y+py*my),(xs,y+py*(my+scale_height/3.0))],**self.style)
-                if abs(xs-last_x)>ref_w:
+                self._draw_line(draw,[(xs,y+py*my+scale_height/2.0-tick_length/2.0),(xs,y+py*(my+scale_height/2.0+tick_length/2.0))],**self.style)
+                #print(abs(xs-last_x),xs,last_x, ref_w)
+                #print((form%(val_steps[i])).strip())
+                if abs(xs-last_x)>ref_w or xs==last_x:
                     self._draw_text(draw,(xs, y+py*(my+2*scale_height/3.0)), (form%(val_steps[i])).strip(), **self.style)
                     last_x = xs
             # minor
+
             x_steps = px*(minor_steps - minval)*scale_width/(maxval-minval)+x+px*mx
             for i, xs in enumerate(x_steps):
-                self._draw_line(draw,[(xs,y+py*my),(xs,y+py*(my+scale_height/6.0))],**self.style)
-                
+                self._draw_line(draw,[(xs,y+py*my+scale_height/2.0-tick_length/4.0),(xs,y+py*(my+scale_height/2.0+tick_length/4.0))],**self.style)
+               # self._draw_line(draw,[(xs,y+py*my),(xs,y+py*(my+scale_height/6.0))],**self.style)
+
 
         # draw unit and/or power if set
         if self.style['unit']:
@@ -508,7 +519,7 @@ class DecoratorBase(object):
 def  _round_arange(val_min, val_max , dval):
     """
     Returns an array of values in the range from valmin to valmax
-    but with stepping, dval. This is similar to numpy.arange except 
+    but with stepping, dval. This is similar to numpy.arange except
     the values must be rounded to the nearest multiple of dval.
     """
     vals = np.arange(val_min, val_max, dval)
@@ -516,13 +527,13 @@ def  _round_arange(val_min, val_max , dval):
     if round_vals[0] < val_min:
         round_vals = round_vals[1:]
     return round_vals
-     
+
 def  _round_arange2(val_min, val_max , dval):
     """
     Returns an array of values in the range from valmin to valmax
-    but with stepping, dval. This is similar to numpy.linspace except 
+    but with stepping, dval. This is similar to numpy.linspace except
     the values must be rounded to the nearest multiple of dval.
-    The difference to _round_arange is that the return values include 
+    The difference to _round_arange is that the return values include
     also the bounary value val_max.
     """
     val_min_round = val_min + (dval-val_min%dval)%dval
@@ -531,8 +542,8 @@ def  _round_arange2(val_min, val_max , dval):
     vals = np.linspace( val_min_round, val_max_round, num=n_points)
 
     return vals
-     
-   
+
+
 def _optimize_scale_numbers( minval, maxval, dval ):
     """
     find a suitable number format, A and B in "%A.Bf" and power if numbers are large
@@ -542,5 +553,5 @@ def _optimize_scale_numbers( minval, maxval, dval ):
     # no fractions, so turn off remainder
     if dval%1.0 == 0.0:
         ffra=0
-        
+
     return ffra,0
