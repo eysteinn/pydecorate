@@ -24,8 +24,7 @@ except ImportError:
     print("ImportError: Missing PIL image objects")
 
 try:
-    #import ImageDraw
-    from PIL import Image
+    import ImageDraw
 except ImportError:
     print("ImportError: Missing module: ImageDraw")
 
@@ -349,14 +348,14 @@ class DecoratorBase(object):
         # synchronize kwargs into style
         self.set_style(**kwargs)
 
-        gamma = kwargs.get('gamma', 1.0)
+
         # sizes, current xy and margins
         x=self.style['cursor'][0]
         y=self.style['cursor'][1]
         mx=self.style['margins'][0]
         my=self.style['margins'][1]
         x_size,y_size = self.image.size
-        #print('Cursor', x, y)
+
         # horizontal/vertical?
         is_vertical = False
         if self.style['propagation'][1] != 0:
@@ -371,8 +370,6 @@ class DecoratorBase(object):
         is_bottom = False
         if self.style['alignment'][1] == 1.0:
             is_bottom = True
-        #print('ISBOTTO: '+is_bottom)
-
 
         # adjust new size based on extend (fill space) style,
         if self.style['extend']:
@@ -414,23 +411,14 @@ class DecoratorBase(object):
         #### THIS PART TO BE INGESTED INTO A COLORMAP FUNCTION ####
         minval,maxval = colormap.values[0],colormap.values[-1]
 
-
         if is_vertical:
-            #linedata = np.ones((scale_width/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_height)
-            #linedata = np.ones((scale_width/2.0,1))**gamma *np.linspace(minval, maxval, scale_width)
-            linedata = np.ones((scale_width/2.0,1))*(np.linspace(0,1,scale_height)**(1.0 / gamma) *(maxval-minval)+minval)
+            linedata = np.ones((scale_width/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_height)
             linedata = linedata.transpose()
         else:
-            #linedata = np.ones((scale_height/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_width)
-            #linedata = np.ones((scale_height/2.0,1))**gamma *np.linspace(minval, maxval, scale_width)
-            linedata = np.ones((scale_height/2.0,1))*(np.linspace(0,1,scale_width)**(1.0 / gamma) *(maxval-minval)+minval)
+            linedata = np.ones((scale_height/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_width)
 
         timg = TImage(linedata,mode="L")
-        print(kwargs.get('palettize'))
-        if kwargs.get('palettize', False):
-            timg.palettize(colormap)
-        else:
-            timg.colorize(colormap)
+        timg.colorize(colormap)
         scale = timg.pil_image()
         ###########################################################
 
@@ -453,9 +441,7 @@ class DecoratorBase(object):
         last_x = x+px*mx
         last_y = y+py*my
         ref_w, ref_h = self._draw_text(draw, (0,0), form%(val_steps[0]), dry_run=True, **self.style)
-        #tick_length=10
-        tick_length=round(scale_height*0.20)
-        #print('scale_height: '+str(scale_height))
+        tick_length=10
         if is_vertical:
             # major
             offset_start = val_steps[0]  - minval
@@ -476,25 +462,18 @@ class DecoratorBase(object):
             # major
             x_steps = px*(val_steps - minval)*scale_width/(maxval-minval)+x+px*mx
             #print(x_steps)
-            #print(y, py,(my+2*scale_height/3.0))
             for i, xs in enumerate(x_steps):
-                #self._draw_line(draw,[(xs,y+py*my+scale_height/2.0-tick_length/2.0),(xs,y+py*(my+scale_height/2.0+tick_length/2.0))],**self.style)
-                self._draw_line(draw,[(xs,y+py*(my+scale_height/2.0-tick_length/2.0)),(xs,y+py*(my+scale_height/2.0+tick_length/2.0))],**self.style)
+                self._draw_line(draw,[(xs,y+py*my+scale_height/2.0-tick_length/2.0),(xs,y+py*(my+scale_height/2.0+tick_length/2.0))],**self.style)
                 #print(abs(xs-last_x),xs,last_x, ref_w)
                 #print((form%(val_steps[i])).strip())
-
                 if abs(xs-last_x)>ref_w or xs==last_x:
-                    center_y=y+py*(my+scale_height/2.0)
-                    font_height=self.style['font'].getmetrics()[0]
-                    #self._draw_text(draw,(xs, y+py*(my+2*scale_height/3.0)), (form%(val_steps[i])).strip(), **self.style)
-                    self._draw_text(draw,(xs, center_y+tick_length/2.0+font_height/2.0), (form%(val_steps[i])).strip(), **self.style)
+                    self._draw_text(draw,(xs, y+py*(my+2*scale_height/3.0)), (form%(val_steps[i])).strip(), **self.style)
                     last_x = xs
             # minor
 
             x_steps = px*(minor_steps - minval)*scale_width/(maxval-minval)+x+px*mx
             for i, xs in enumerate(x_steps):
-                self._draw_line(draw,[(xs,y+py*(my+scale_height/2.0-tick_length/4.0)),(xs,y+py*(my+scale_height/2.0+tick_length/4.0))],**self.style)
-
+                self._draw_line(draw,[(xs,y+py*my+scale_height/2.0-tick_length/4.0),(xs,y+py*(my+scale_height/2.0+tick_length/4.0))],**self.style)
                # self._draw_line(draw,[(xs,y+py*my),(xs,y+py*(my+scale_height/6.0))],**self.style)
 
 
@@ -511,7 +490,6 @@ class DecoratorBase(object):
                 x = x + mx + scale_width + x_spacer/2.0
                 if is_bottom:
                     y = y - my - scale_height/2.0
-
                 else:
                     y = y + my + scale_height/2.0
             # draw marking
