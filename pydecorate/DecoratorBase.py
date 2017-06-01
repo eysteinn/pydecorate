@@ -418,12 +418,12 @@ class DecoratorBase(object):
         if is_vertical:
             #linedata = np.ones((scale_width/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_height)
             #linedata = np.ones((scale_width/2.0,1))**gamma *np.linspace(minval, maxval, scale_width)
-            linedata = np.ones((scale_width/2.0,1))*(np.linspace(0,1,scale_height)**(1.0 / gamma) *(maxval-minval)+minval)
+            linedata = np.ones((scale_width/2,1))*(np.linspace(0,1,scale_height)**(1.0 / gamma) *(maxval-minval)+minval)
             linedata = linedata.transpose()
         else:
             #linedata = np.ones((scale_height/2.0,1)) * np.arange(minval,maxval,(maxval-minval)/scale_width)
             #linedata = np.ones((scale_height/2.0,1))**gamma *np.linspace(minval, maxval, scale_width)
-            linedata = np.ones((scale_height/2.0,1))*(np.linspace(0,1,scale_width)**(1.0 / gamma) *(maxval-minval)+minval)
+            linedata = np.ones((scale_height/2,1))*(np.linspace(0,1,scale_width)**(1.0 / gamma) *(maxval-minval)+minval)
 
         timg = TImage(linedata,mode="L")
         print(kwargs.get('palettize'))
