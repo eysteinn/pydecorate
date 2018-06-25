@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from pydecorate.decorator_base import DecoratorBase
 
 try:
     from PIL import ImageDraw
@@ -35,6 +36,10 @@ class Decorator(DecoratorBase):
 
     def _load_default_font(self):
         return ImageFont.load_default()
+
+    def load_font(self, font, **kwargs):
+        return self._load_font(font, **kwargs)
+
 
     def add_text(self, txt, **kwargs):
         self._add_text(txt, **kwargs)

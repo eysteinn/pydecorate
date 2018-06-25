@@ -6,8 +6,10 @@
 
 from .decorator import Decorator
 try:
+    import aggdraw
     from .decorator_agg import DecoratorAGG
 except ImportError:
+    print('Failed to import aggdraw, falling back to PIL')
     DecoratorAGG = Decorator
 
 

@@ -196,6 +196,12 @@ class DecoratorBase(object):
     def _load_default_font(self):
         raise NotImplementedError("Derived class implements this.")
 
+    def _load_font(self, font, font_size = 32, **kwargs):
+        print('loading font: %s with size %s' % (font, font_size))
+        return ImageFont.truetype(font, font_size)
+        #print('loading font: %s with size %s' % (font, kwargs.get("font_size", -1)))
+        #return ImageFont.truetype(font, kwargs.get("font_size", None))
+
     def _draw_text(self, draw, xy, txt, font, fill='black', align='cc', dry_run=False, **kwargs):
         """
         Elementary text draw routine,
@@ -204,6 +210,8 @@ class DecoratorBase(object):
         # check for font object
         if font is None:
             font = self._load_default_font()
+        if isinstance(self.style['font'], basestring):
+            self.style['font'] = self.load_font(**kwargs)
 
         # calculate text space
         tw, th = draw.textsize(txt, font)
@@ -235,7 +243,8 @@ class DecoratorBase(object):
         # check for font object
         if self.style['font'] is None:
             self.style['font'] = self._load_default_font()
-
+        if isinstance(self.style['font'], basestring):
+            self.style['font'] = self.load_font(**kwargs)
         # image size
         x_size, y_size = self.image.size
 

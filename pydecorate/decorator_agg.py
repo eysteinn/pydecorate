@@ -35,6 +35,10 @@ class DecoratorAGG(DecoratorBase):
         except IOError:
             return aggdraw.Font("black", "/usr/share/fonts/dejavu/DejaVuSerif.ttf", size=16)
 
+    def _load_font(self, font, font_size = 32):
+        import aggdraw
+        return aggdraw.Font("black", font, size=font_size)
+
     def add_text(self, txt, **kwargs):
         self._add_text(txt, **kwargs)
 
