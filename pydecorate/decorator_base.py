@@ -197,10 +197,7 @@ class DecoratorBase(object):
         raise NotImplementedError("Derived class implements this.")
 
     def _load_font(self, font, font_size = 32, **kwargs):
-        print('loading font: %s with size %s' % (font, font_size))
         return ImageFont.truetype(font, font_size)
-        #print('loading font: %s with size %s' % (font, kwargs.get("font_size", -1)))
-        #return ImageFont.truetype(font, kwargs.get("font_size", None))
 
     def _draw_text(self, draw, xy, txt, font, fill='black', align='cc', dry_run=False, **kwargs):
         """
