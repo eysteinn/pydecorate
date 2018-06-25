@@ -54,17 +54,10 @@ setup(name='pydecorate',
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
-<<<<<<< HEAD
       install_requires=['docutils>=0.3', 
                         'Pillow'],
       scripts = [],      
       data_files = [],
-=======
-      install_requires=['docutils>=0.3',
-                        'pillow'],
-      scripts=[],
-      data_files=[],
->>>>>>> 36bb764feadf9e16adbc18fec22ade18c303f129
       test_suite="nose.collector",
       tests_require=[],
 
